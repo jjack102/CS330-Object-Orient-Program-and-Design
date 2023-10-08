@@ -1,0 +1,141 @@
+@startuml
+skinparam classAttributeIconSize 0
+hide empty members
+
+package polyhedra {
+
+    class Point {
+        + x: double
+        + y: double
+        + z: double
+
+        + Point()
+        + Point(dx: double, dy: double, dz: double)
+        + scale(scalingFactor: double)
+        + equals(rhs: Object): boolean
+        + hashCode(): int
+        + clone(): Point
+        + toString(): String
+    }
+
+    class BoundingBox {
+
+        + BoundingBox()
+        + BoundingBox(lowerLeft: Point, upperRight: Point)
+        + BoundingBox(xUpper: double, yUpper: double, zUpper: double)
+        + getLowerLeftVertex(): Point
+        + getUpperRightVertex(): Point
+        + setUpperRightVertex(newPoint: Point)
+        + setUpperRightVertex(x: double, y: double, z: double)
+        + merge(other: BoundingBox)
+        + scale(scalingFactor: double)
+        + clone(): BoundingBox
+        + toString(): String
+    }
+
+    interface TraitFromDimensions
+    {
+        + numberOfDimensions(): int
+        + fromDimensions(theDims: double[])
+    }
+
+    interface Polyhedron
+    {
+        + getType(): String
+        + getBoundingBox(): BoundingBox
+        + scale(scalingFactor: double)
+        + clone(): Polyhedron
+        + cloneAndScale(sFactor: double): Polyhedron
+        + toStringHelper(): String
+        + isComplex(): boolean
+        + isSimple(): boolean
+    }
+
+    class Cylinder {
+        - height: double
+        - radius: double
+
+        + Cylinder()
+        + Cylinder(r: double, h: double)
+        + getRadius(): double
+        + getHeight(): double
+        + setRadius(r: double)
+        + setHeight(h: double)
+        + getDiameter(): double
+        + equals(rhs: Object): boolean
+        + hashCode(): int
+        + toString(): String
+    }
+
+    class Sphere {
+        - radius: double
+
+        + Sphere()
+        + Sphere(r: double)
+        + getRadius(): double
+        + setRadius(r: double)
+        + getDiameter(): double
+        + equals(rhs: Object): boolean
+        + hashCode(): int
+        + toString(): String
+    }
+
+    class Composite {
+        - theBox: BoundingBox
+        - allPolyhedra: List<Polyhedron>
+
+        + Composite()
+        + add(toAdd: Polyhedron)
+        + size(): int
+        + iterator(): Iterator<Polyhedron>
+        + equals(rhs: Object): boolean
+        + hashCode(): int
+        + toString(): String
+    }
+
+    class PolyhedronFactory {
+        - {static} knownPolyhedra: Polyhedron[]
+
+        + {static} createPolyhedron(name: String): Polyhedron
+        + {static} isKnown(name: String): boolean
+        + {static} listKnown(): String
+        + {static} numberKnown(): int
+    }
+
+    package polyhedra.io {
+        class PolyhedronReader
+        {
+            - theBuffer: BufferedReader
+
+            + PolyhedronReader(aBuffer: BufferedReader)
+            - createAndRead(snr: Scanner): Polyhedron
+            - initFromDimensions(dimPoly: TraitFromDimensions, snr: Scanner): Polyhedron
+            - readMultiple(scanner: Scanner, poly: Composite): Polyhedron
+            + readAll(): List<Polyhedron>
+        }
+    }
+}
+
+interface Cloneable {
+
+}
+
+interface "Iterable<Polyhedron>" {
+
+}
+
+Point .[#blue].|> Cloneable
+BoundingBox .[#blue].|> Cloneable
+Polyhedron --[#blue]--|> Cloneable
+
+Cylinder ....|> Polyhedron
+Cylinder ..[#orange]..|> TraitFromDimensions
+
+Sphere ....|> Polyhedron
+Sphere ..[#orange]..|> TraitFromDimensions
+
+Composite ....|> Polyhedron
+Composite ..[#black]..|> "Iterable<Polyhedron>"
+
+
+@enduml
